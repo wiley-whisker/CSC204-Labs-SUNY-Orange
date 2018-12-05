@@ -1,8 +1,9 @@
 .global main
 
 .data
-    # Array
+    # Array and temp variable
     x: .quad 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 # Declare an array with 10 entries.
+    temp: .quad 0 # Temp variable for array swaps
 
     # input-output/prompts
     prompt: .asciz "\nPlease enter a number %d: "
@@ -35,7 +36,33 @@ main:
     popq %rsp
     popq %rbp
 
+    # CALL OUTPUT FUNCTION
+    # 16-bit alignment
+    pushq %rbp
+    pushq %rsp
+
+    xorq %rax, %rax # no args on stack
+    movq $x, %rdi # pass array as arg
+    call arrayout
+
+    # popem from stack
+    popq %rsp
+    popq %rbp
+
     # CALL SORT FUNCTION
+    # 16-bit alignment
+    pushq %rbp
+    pushq %rsp
+
+    xorq %rax, %rax # no args on stack
+    movq $x, %rdi # pass array as arg
+    call bubblesort
+
+    # popem from stack
+    popq %rsp
+    popq %rbp
+
+    # CALL OUTPUT FUNCTION
     # 16-bit alignment
     pushq %rbp
     pushq %rsp
@@ -139,12 +166,51 @@ arrayout:
     ret
 
 # FUNCTION FOR BUBBLESORTING AN ARRAY
-arrayout:
+bubblesort:
     # Create stackframe
     pushq %rbp
     movq %rsp, %rbp
 
+    for1:
+        for2:
+            movq j, %rbx # move current index to rbx
+            movq %rbx, %rdx # move current index to rdx the  increment
+            inc %rdx
+
+            leaq (%rdi,%rbx,8), %rcx # Move address of Current array index into rCx
+            leaq (%rdi,%rdx,8), %rax # Move address of Adjacent array index into rAx
+
+            movq (%rcx), %rsi # using rsi as our temp register
+
+            cmpq %rsi, (%rax)
+            jge dontswap
+                # Move value of j+1 to temp
+                movq (%rax), %rsi
+                movq %rsi, temp
+                
+                # move [j] to [j+1]
+                movq (%rcx), %rsi
+                movq %rsi, (%rax)
+
+                # move temp to [j]
+                movq temp, %rsi
+                movq %rsi, temp
+            dontswap:
+
+            
+        # Move j to rcx, increment, save new value, then compare.
+        movq j, %rcx
+        inc %rcx
+        movq %rcx, j
+        cmpq $8, %rcx
+        jl for1
     
+    # Move i to rcx, increment, save new value, then compare.
+    movq i, %rcx
+    inc %rcx
+    movq %rcx, i
+    cmpq $9, %rcx
+    jl for1
     
     movq %rbp, %rsp # restore top stack pointer
     popq %rbp
