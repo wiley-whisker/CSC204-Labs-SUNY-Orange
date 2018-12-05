@@ -8,6 +8,8 @@
     prompt: .asciz "\nPlease enter a number %d: "
     format: .asciz "%i"
     resultmsg: .asciz "The sum is: %d\n"
+    arrayoutmsg: .asciz "Printing array: %d\n"
+    sortedmsg: .asciz "Array has been sorted\n"
 
     # For loop variables (for sort)
     i: .quad 0
@@ -40,7 +42,7 @@ main:
 
     xorq %rax, %rax # no args on stack
     movq $x, %rdi # pass array as arg
-    call getinput
+    call arrayout
 
     # popem from stack
     popq %rsp
@@ -77,7 +79,7 @@ getinput:
 
         # popem in order
         popq %rcx # get i back from stack
-        popq %rbx # get array ptr back from stack# get i back from stack
+        popq %rbx # get array ptr back from stack
 
         # save registers
         pushq %rbx
@@ -104,8 +106,49 @@ getinput:
     ret
 
 # FUNCTION FOR OUTPUTTING AN ARRAY
-# arrayout:
+arrayout:
     # Create stackframe
-    # pushq %rbp
-    # movq %rsp, %rbp
+    pushq %rbp
+    movq %rsp, %rbp
+
+    movq %rdi, %rbx
+    movq $0, %rcx
+    arrayoutloop: # A do-while loop to print out a 10 index array
+        # save registers
+        pushq %rbx
+        pushq %rcx
+
+        xorq %rax, %rax # no args on stack
+        movq $arrayoutmsg, %rdi # load prompt as argument
+        movq (%rbx), %rsi # Move i to rsi
+        call printf
+
+        # popem in order
+        popq %rcx # get i back from stack
+        popq %rbx # get array ptr back from stack
+
+        addq $8, %rbx # move to next array index
+
+        inc %rcx
+
+        cmpq $10, %rcx
+        jl arrayoutloop
+    
+    movq %rbp, %rsp # restore top stack pointer
+    popq %rbp
+    ret
+
+# FUNCTION FOR BUBBLESORTING AN ARRAY
+arrayout:
+    # Create stackframe
+    pushq %rbp
+    movq %rsp, %rbp
+
+    
+    
+    movq %rbp, %rsp # restore top stack pointer
+    popq %rbp
+    ret
+
+     
 
