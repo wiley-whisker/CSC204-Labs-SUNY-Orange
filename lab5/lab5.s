@@ -16,7 +16,9 @@ main:
         pushq %rcx
 
         xorq %rax, %rax # no args on stack
-        movq $prompt, %rdi # load prompt as argument 
+        movq $prompt, %rdi # load prompt as argument
+        movq %rcx, %rsi # Move i to rsi
+        inc %rsi # increment by one so it shows properly ex. 1st, 2nd, not 0th
         call printf
 
         # popem in order
@@ -36,7 +38,7 @@ main:
         popq %rcx # get array ptr back from stack
         popq %rbx # get i back from stack
 
-        addq $8, %rbx
+        addq $8, %rbx # Increment array index
 
         # Increment rcx(i) and repeat loop if rcx < 10
         inc %rcx
@@ -53,7 +55,7 @@ main:
     sumloop:
         add (%rbx), %rax # Add x[rcx] to sum(rax)
 
-        addq $8, %rbx
+        addq $8, %rbx # Increment array index
 
         inc %rcx # rcx++.
 
@@ -78,8 +80,6 @@ main:
     popq %rbx
     popq %rcx
 
-
-
     # Exit program.
     popq %rbp
     movq   $60,    %rax     # exit(
@@ -90,7 +90,7 @@ main:
 .data
     x: .quad 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 # Declare an array with 10 entries.
     sum: .quad 0
-    prompt: .asciz "Please enter a number: \n"
-    percentd: .asciz "%i \n"
+    prompt: .asciz "Please enter a number %d: \n"
+    percentd: .asciz "%i"
     resultmsg: .asciz "The sum is: %d\n"
     dbmsg: .asciz "This-> %d\n"
