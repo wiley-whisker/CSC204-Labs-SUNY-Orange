@@ -230,6 +230,3 @@ bubblesort:
     movq %rbp, %rsp # restore top stack pointer
     popq %rbp
     ret
-
-     
-
