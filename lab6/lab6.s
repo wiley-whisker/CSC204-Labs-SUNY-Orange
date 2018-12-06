@@ -8,7 +8,7 @@
     # input-output/prompts
     prompt: .asciz "\nPlease enter a number %d: "
     format: .asciz "%i"
-    resultmsg: .asciz "The sum is: %d\n"
+    sortingmsg: .asciz "\nSorting the array...\n"
     arrayoutmsg: .asciz "Printing array: %d\n"
     sortedmsg: .asciz "Array has been sorted\n"
 
@@ -48,6 +48,19 @@ main:
     # popem from stack
     popq %rsp
     popq %rbp
+
+    # PRINT SORTING MSG
+    # save registers
+    pushq %rbx
+    pushq %rcx
+
+    xorq %rax, %rax # no args on stack
+    movq $sortingmsg, %rdi # load prompt as argument
+    call printf
+
+    # popem in order
+    popq %rcx # get i back from stack
+    popq %rbx # get array ptr back from stack
 
     # CALL SORT FUNCTION
     # 16-bit alignment
@@ -172,6 +185,7 @@ bubblesort:
     movq %rsp, %rbp
 
     for1:
+    movq $0, j
         for2:
             movq j, %rbx # move current index to rbx
             movq %rbx, %rdx # move current index to rdx the  increment
@@ -194,7 +208,7 @@ bubblesort:
 
                 # move temp to [j]
                 movq temp, %rsi
-                movq %rsi, temp
+                movq %rsi, (%rcx)
             dontswap:
 
             
@@ -202,14 +216,15 @@ bubblesort:
         movq j, %rcx
         inc %rcx
         movq %rcx, j
-        cmpq $8, %rcx
-        jl for1
+        cmpq $9, %rcx
+        jl for2
     
     # Move i to rcx, increment, save new value, then compare.
+
     movq i, %rcx
     inc %rcx
     movq %rcx, i
-    cmpq $9, %rcx
+    cmpq $10, %rcx
     jl for1
     
     movq %rbp, %rsp # restore top stack pointer
